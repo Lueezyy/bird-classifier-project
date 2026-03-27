@@ -698,3 +698,167 @@ body {
     transform: rotate(360deg);
   }
 }
+/* Predictions List Styles */
+.predictions-list {
+  margin-top: 24px;
+  margin-bottom: 20px;
+}
+
+.predictions-title {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
+  color: #666;
+  margin-bottom: 16px;
+  font-family: 'Lato', sans-serif;
+}
+
+.prediction-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  transition: background 0.2s ease;
+}
+
+.prediction-row:hover {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.prediction-row--primary {
+  background: rgba(46, 125, 50, 0.05);
+  border-radius: 8px;
+  padding: 12px 12px;
+  margin-bottom: 4px;
+  border-bottom: none;
+}
+
+.prediction-rank {
+  font-size: 1.5rem;
+  width: 40px;
+  text-align: center;
+  font-weight: 600;
+}
+
+.prediction-species {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.prediction-species-name {
+  font-weight: 600;
+  color: #1a2a1f;
+  font-size: 1rem;
+}
+
+.prediction-row--primary .prediction-species-name {
+  font-size: 1.1rem;
+  color: #2e7d32;
+}
+
+.prediction-confidence-label {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #2e7d32;
+  background: rgba(46, 125, 50, 0.1);
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-family: monospace;
+}
+
+.prediction-bar-container {
+  width: 120px;
+  height: 6px;
+  background: #e0e0e0;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.prediction-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .prediction-row {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .prediction-rank {
+    width: 30px;
+    font-size: 1.2rem;
+  }
+  
+  .prediction-species {
+    flex: 1;
+    min-width: 150px;
+  }
+  
+  .prediction-bar-container {
+    width: 100%;
+    margin-left: 42px;
+  }
+  
+  .prediction-row--primary .prediction-bar-container {
+    margin-left: 42px;
+  }
+}
+
+/* Animation for predictions loading */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.prediction-row {
+  animation: slideIn 0.3s ease forwards;
+  animation-delay: calc(var(--index, 0) * 0.05s);
+  opacity: 0;
+}
+
+.prediction-row:nth-child(1) { --index: 0; }
+.prediction-row:nth-child(2) { --index: 1; }
+.prediction-row:nth-child(3) { --index: 2; }
+/* Low confidence prediction styles */
+.prediction-row--low-confidence {
+  opacity: 0.7;
+}
+
+.prediction-row--primary-low {
+  background: rgba(245, 124, 0, 0.08);
+  border-radius: 8px;
+  padding: 12px 12px;
+  margin-bottom: 4px;
+  border-bottom: none;
+}
+
+.prediction-row--primary-low .prediction-species-name {
+  color: #f57c00;
+}
+
+.prediction-confidence-label--low {
+  background: rgba(245, 124, 0, 0.15);
+  color: #f57c00;
+}
+
+/* Low confidence warning box animation */
+@keyframes pulse {
+  0% { border-left-color: #f57c00; }
+  50% { border-left-color: #ff9800; }
+  100% { border-left-color: #f57c00; }
+}

@@ -161,53 +161,227 @@ predictBtn.addEventListener('click', async () => {
 
     const data = await response.json();
 
-    // Clear any previous error state
-    resultsPanel.classList.remove('results--error');
-    
-    // Update results panel with backend data
-    const speciesName = document.querySelector('.results__name');
-    const latinName = document.querySelector('.results__latin');
-    const confidenceValue = document.querySelector('.confidence__value');
-    const confidenceFill = document.querySelector('.confidence__fill');
-    const confidenceTrack = document.querySelector('.confidence__track');
-    const birdDescription = document.querySelector('.results__description');
-    const tags = document.querySelectorAll('.results__tags .tag');
-
-    // Update species name
-    if (speciesName) speciesName.textContent = data.species;
-    
-    // Update Latin name (if provided, otherwise show placeholder)
-    if (latinName) {
-      if (data.latin_name) {
-        latinName.innerHTML = `<em>${data.latin_name}</em>`;
-      } else {
-        latinName.innerHTML = `<em>Species identified</em>`;
+    // Check if this is a low confidence response
+    if (data.low_confidence) {
+      // Show low confidence message in results panel
+      const speciesName = document.querySelector('.results__name');
+      const birdDescription = document.querySelector('.results__description');
+      const confidenceValue = document.querySelector('.confidence__value');
+      const confidenceFill = document.querySelector('.confidence__fill');
+      const confidenceTrack = document.querySelector('.confidence__track');
+      
+      // Update species name to warning
+      if (speciesName) {
+        speciesName.textContent = '⚠️ Low Confidence';
+        speciesName.style.color = '#f57c00';
       }
-    }
-    
-    // Update confidence percentage and progress bar
-    const confidencePercent = Math.round(data.confidence * 100);
-    if (confidenceValue) confidenceValue.textContent = `${confidencePercent}%`;
-    if (confidenceFill) {
-      confidenceFill.style.width = `${confidencePercent}%`;
-      // Update aria attributes for accessibility
-      if (confidenceTrack) {
-        confidenceTrack.setAttribute('aria-valuenow', confidencePercent);
-      }
-    }
-    
-    // Update description
-    if (birdDescription) birdDescription.textContent = data.description;
-    
-    // Optional: Update tags if provided in response
-    if (data.tags && tags.length) {
-      tags.forEach((tag, index) => {
-        if (data.tags[index]) {
-          tag.textContent = data.tags[index];
+      
+      // Update confidence display
+      const topConfidence = Math.round(data.top_confidence * 100);
+      if (confidenceValue) confidenceValue.textContent = `${topConfidence}%`;
+      if (confidenceFill) {
+        confidenceFill.style.width = `${topConfidence}%`;
+        confidenceFill.style.backgroundColor = '#f57c00';
+        if (confidenceTrack) {
+          confidenceTrack.setAttribute('aria-valuenow', topConfidence);
         }
-      });
+      }
+      
+      // Update description with helpful message
+      if (birdDescription) {
+        birdDescription.innerHTML = `
+          <div style="background: #fff3e0; border-left: 4px solid #f57c00; padding: 16px; border-radius: 8px;">
+            <strong style="color: #f57c00;">${data.message}</strong><br><br>
+            ${data.suggestion}<br><br>
+            <small style="color: #666;">Top candidate was "${data.top_species}" with only ${topConfidence}% confidence.</small>
+          </div>
+        `;
+      }
+      
+      // Still show top predictions (but with warning styling)
+      let predictionsContainer = document.querySelector('.predictions-list');
+      
+      if (!predictionsContainer) {
+        const confidenceSection = document.querySelector('.results__confidence');
+        if (confidenceSection) {
+          const container = document.createElement('div');
+          container.className = 'predictions-list';
+          container.innerHTML = '<h3 class="predictions-title">Top Predictions (Low Confidence)</h3>';
+          confidenceSection.insertAdjacentElement('afterend', container);
+          predictionsContainer = container;
+        }
+      }
+      
+      if (predictionsContainer) {
+        const title = predictionsContainer.querySelector('.predictions-title');
+        predictionsContainer.innerHTML = '';
+        if (title) predictionsContainer.appendChild(title);
+        
+        if (data.top_predictions && data.top_predictions.length) {
+          data.top_predictions.forEach((prediction, index) => {
+            const confidencePercent = Math.round(prediction.confidence * 100);
+            
+            const row = document.createElement('div');
+            row.className = 'prediction-row prediction-row--low-confidence';
+            if (index === 0) row.classList.add('prediction-row--primary-low');
+            
+            const rank = document.createElement('div');
+            rank.className = 'prediction-rank';
+            if (index === 0) rank.textContent = '🥇';
+            else if (index === 1) rank.textContent = '🥈';
+            else if (index === 2) rank.textContent = '🥉';
+            else rank.textContent = `${index + 1}.`;
+            
+            const speciesInfo = document.createElement('div');
+            speciesInfo.className = 'prediction-species';
+            
+            const speciesNameEl = document.createElement('span');
+            speciesNameEl.className = 'prediction-species-name';
+            speciesNameEl.textContent = prediction.species;
+            
+            const confidenceLabel = document.createElement('span');
+            confidenceLabel.className = 'prediction-confidence-label';
+            confidenceLabel.textContent = `${confidencePercent}%`;
+            
+            speciesInfo.appendChild(speciesNameEl);
+            speciesInfo.appendChild(confidenceLabel);
+            
+            const barContainer = document.createElement('div');
+            barContainer.className = 'prediction-bar-container';
+            
+            const barFill = document.createElement('div');
+            barFill.className = 'prediction-bar-fill';
+            barFill.style.width = `${confidencePercent}%`;
+            barFill.style.backgroundColor = '#f57c00';
+            
+            barContainer.appendChild(barFill);
+            
+            row.appendChild(rank);
+            row.appendChild(speciesInfo);
+            row.appendChild(barContainer);
+            
+            predictionsContainer.appendChild(row);
+          });
+        }
+      }
+      
+      // Show the results panel
+      resultsPanel.hidden = false;
+      resultsPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      
+    } else {
+      // Normal high confidence response
+      // Update results panel with backend data
+      const speciesName = document.querySelector('.results__name');
+      const latinName = document.querySelector('.results__latin');
+      const birdDescription = document.querySelector('.results__description');
+      
+      // Reset any warning styling
+      if (speciesName) {
+        speciesName.textContent = data.primary_species;
+        speciesName.style.color = '';
+      }
+      
+      // Update description
+      if (birdDescription) birdDescription.textContent = data.description;
+      
+      // Create or update the predictions list with all top predictions
+      let predictionsContainer = document.querySelector('.predictions-list');
+      
+      // If the container doesn't exist, create it
+      if (!predictionsContainer) {
+        // Find where to insert the predictions list (after confidence section)
+        const confidenceSection = document.querySelector('.results__confidence');
+        if (confidenceSection) {
+          const container = document.createElement('div');
+          container.className = 'predictions-list';
+          container.innerHTML = '<h3 class="predictions-title">Top Predictions</h3>';
+          confidenceSection.insertAdjacentElement('afterend', container);
+          predictionsContainer = container;
+        }
+      }
+      
+      // Clear existing predictions (keep the title if it exists)
+      if (predictionsContainer) {
+        const title = predictionsContainer.querySelector('.predictions-title');
+        predictionsContainer.innerHTML = '';
+        if (title) predictionsContainer.appendChild(title);
+        
+        // Add each prediction as a row with confidence bar
+        if (data.top_predictions && data.top_predictions.length) {
+          data.top_predictions.forEach((prediction, index) => {
+            const confidencePercent = Math.round(prediction.confidence * 100);
+            
+            // Create prediction row
+            const row = document.createElement('div');
+            row.className = 'prediction-row';
+            if (index === 0) row.classList.add('prediction-row--primary');
+            
+            // Create rank indicator
+            const rank = document.createElement('div');
+            rank.className = 'prediction-rank';
+            if (index === 0) rank.textContent = '🥇';
+            else if (index === 1) rank.textContent = '🥈';
+            else if (index === 2) rank.textContent = '🥉';
+            else rank.textContent = `${index + 1}.`;
+            
+            // Create species info
+            const speciesInfo = document.createElement('div');
+            speciesInfo.className = 'prediction-species';
+            
+            const speciesNameEl = document.createElement('span');
+            speciesNameEl.className = 'prediction-species-name';
+            speciesNameEl.textContent = prediction.species;
+            
+            const confidenceLabel = document.createElement('span');
+            confidenceLabel.className = 'prediction-confidence-label';
+            confidenceLabel.textContent = `${confidencePercent}%`;
+            
+            speciesInfo.appendChild(speciesNameEl);
+            speciesInfo.appendChild(confidenceLabel);
+            
+            // Create confidence bar container
+            const barContainer = document.createElement('div');
+            barContainer.className = 'prediction-bar-container';
+            
+            const barFill = document.createElement('div');
+            barFill.className = 'prediction-bar-fill';
+            barFill.style.width = `${confidencePercent}%`;
+            barFill.style.backgroundColor = index === 0 ? '#2e7d32' : '#4caf50';
+            
+            barContainer.appendChild(barFill);
+            
+            // Assemble the row
+            row.appendChild(rank);
+            row.appendChild(speciesInfo);
+            row.appendChild(barContainer);
+            
+            predictionsContainer.appendChild(row);
+          });
+        }
+      }
+      
+      // Update the main confidence section to show top prediction details
+      const confidenceValue = document.querySelector('.confidence__value');
+      const confidenceFill = document.querySelector('.confidence__fill');
+      const confidenceTrack = document.querySelector('.confidence__track');
+      
+      if (confidenceValue && data.top_predictions && data.top_predictions[0]) {
+        const topConfidence = Math.round(data.top_predictions[0].confidence * 100);
+        confidenceValue.textContent = `${topConfidence}%`;
+        if (confidenceFill) {
+          confidenceFill.style.width = `${topConfidence}%`;
+          confidenceFill.style.backgroundColor = '#2e7d32'; // Reset to green
+          if (confidenceTrack) {
+            confidenceTrack.setAttribute('aria-valuenow', topConfidence);
+          }
+        }
+      }
+      
+      // Show the results panel
+      resultsPanel.hidden = false;
+      resultsPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
-
     // Show results panel with success styling
     resultsPanel.hidden = false;
     resultsPanel.classList.remove('results--error');
