@@ -104,58 +104,52 @@
           Identify Species
         </button>
 
-        <!-- Results panel (hidden until Predict clicked) -->
-        <div class="results" id="resultsPanel" hidden aria-live="polite">
+<div class="results" id="resultsPanel" hidden aria-live="polite">
 
-          <div class="results__header">
-            <span class="results__label">Identified Species</span>
-            <span class="results__badge">Field Record</span>
-          </div>
+  <div class="results__header">
+    <span class="results__label">Identified Species</span>
+    <span class="results__badge">Field Record</span>
+  </div>
 
-          <div class="results__species">
-            <h2 class="results__name">American Robin</h2>
-            <p class="results__latin"><em>Turdus migratorius</em></p>
-          </div>
+  <div class="results__species">
+    <h2 class="results__name">—</h2>
+    <p class="results__latin"><em>Waiting for prediction</em></p>
+  </div>
 
-          <div class="results__confidence">
-            <div class="confidence__row">
-              <span class="confidence__label">Confidence</span>
-              <span class="confidence__value">94%</span>
-            </div>
-            <div class="confidence__track"
-                 role="progressbar" aria-valuenow="94" aria-valuemin="0" aria-valuemax="100"
-                 aria-label="94% confidence">
-              <div class="confidence__fill" style="--pct: 94%"></div>
-            </div>
-          </div>
+  <div class="results__confidence">
+    <div class="confidence__row">
+      <span class="confidence__label">Confidence</span>
+      <span class="confidence__value">0%</span>
+    </div>
+    <div class="confidence__track"
+         role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+         aria-label="0% confidence">
+      <div class="confidence__fill" style="width: 0%"></div>
+    </div>
+  </div>
 
-          <div class="divider divider--sm" aria-hidden="true">
-            <span class="divider__line"></span>
-            <span class="divider__diamond"></span>
-            <span class="divider__line"></span>
-          </div>
+  <div class="divider divider--sm" aria-hidden="true">
+    <span class="divider__line"></span>
+    <span class="divider__diamond"></span>
+    <span class="divider__line"></span>
+  </div>
 
-          <p class="results__description">
-            The American Robin is one of North America's most familiar songbirds,
-            recognised by its brick-red breast, yellow bill, and clear carolling
-            song that heralds the arrival of spring.
-            It forages on open lawns by running and pausing to pull earthworms
-            from the soil, and ranges widely from Alaska to central Mexico across
-            suburban parks, forests, and open woodland.
-          </p>
+  <p class="results__description">
+    Upload a bird photo and click "Identify Species" to see the results here.
+  </p>
 
-          <div class="results__tags" aria-label="Habitat and classification tags">
-            <span class="tag">Woodland</span>
-            <span class="tag">Suburban</span>
-            <span class="tag">Migratory</span>
-            <span class="tag">Passerine</span>
-          </div>
+  <div class="results__tags" aria-label="Habitat and classification tags">
+    <span class="tag">—</span>
+    <span class="tag">—</span>
+    <span class="tag">—</span>
+    <span class="tag">—</span>
+  </div>
 
-          <button class="btn-reset" id="resetBtn" type="button">
-            Identify another bird
-          </button>
+  <button class="btn-reset" id="resetBtn" type="button">
+    Identify another bird
+  </button>
 
-        </div><!-- /results -->
+</div>
 
       </section>
 
